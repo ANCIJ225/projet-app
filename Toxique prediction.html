@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Analyse Corners</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      padding: 20px; 
+      background-color: #8B4513 !important;
+    }
+    h1 { text-align: center; }
+    .input-section { margin-bottom: 20px; }
+    input { margin: 3px; width: 60px; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    table, th, td { border: 1px solid black; }
+    th, td { padding: 8px; text-align: center; }
+    .btn { padding: 10px; background: blue; color: white; border: none; cursor: pointer; margin-top: 10px; }
+    .btn:hover { background: darkblue; }
+  </style>
+
+  <!-- 🔹 Déclaration du manifest intégré -->
+  <link rel="manifest" id="manifest-placeholder">
+  <script>
+    // Création dynamique du manifest.json intégré
+    const manifestData = {
+      "name": "Analyse Corners",
+      "short_name": "Corners",
+      "start_url": ".",
+      "display": "standalone",
+      "background_color": "#ffffff",
+      "theme_color": "#0000ff",
+      "icons": [
+        {
+          "src": "https://cdn-icons-png.flaticon.com/512/138/138281.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "src": "https://cdn-icons-png.flaticon.com/512/138/138281.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
+    };
+
+    const blob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+    const manifestURL = URL.createObjectURL(blob);
+    document.getElementById("manifest-placeholder").setAttribute("href", manifestURL);
+
+    // Service Worker intégré
+    if ("serviceWorker" in navigator) {
+      const swCode = `
+        self.addEventListener("install", event => {
+          event.waitUntil(
+            caches.open("app-cache").then(cache => {
+              return cache.addAll(["."]);
+            })
+          );
+        });
+
+        self.addEventListener("fetch", event => {
+          event.respondWith(
+            caches.match(event.request).then(response => {
+              return response || fetch(event.request);
+            })
+          );
+        });
+      `;
+      const swBlob = new Blob([swCode], { type: "application/javascript" });
+      const swURL = URL.createObjectURL(swBlob);
+      navigator.serviceWorker.register(swURL);
+    }
+  </script>
+</head>
+<body>
+ <div align="center">
+  <h1>Application Analyse Corners</h1>
+
+  <div class="input-section">
+    <label>Équipe A : <input id="teamA" type="text" placeholder="Équipe A"></label>
+    <label>Équipe B : <input id="teamB" type="text" placeholder="Équipe B"></label>
+  </div>
+
+  <h3>Derniers H2H (4 matchs)</h3>
+  <div id="h2hInputs"></div>
+
+  <h3>Derniers matchs Équipe A (4) tous adversaires confondus</h3>
+  <div id="teamAInputs"></div>
+
+  <h3>Derniers matchs Équipe B (4) tous adversaires confondus</h3>
+  <div id="teamBInputs"></div>
+
+  <button class="btn" onclick="analyze()">Analyser</button>
+
+  <div id="result"></div>
+
+  <script>
+    // Générer automatiquement les inputs
+    function createInputs(id, count, labelA="", labelB="") {
+      let container = document.getElementById(id);
+      for (let i = 1; i <= count; i++) {
+        if(labelB){
+          container.innerHTML += `<div>Match ${i}: 
+            <input type="number" id="${id}A${i}" placeholder="${labelA}">
+            <input type="number" id="${id}B${i}" placeholder="${labelB}">
+          </div>`;
+        } else {
+          container.innerHTML += `<input type="number" id="${id}${i}" placeholder="Match ${i}">`;
+        }
+      }
+    }
+
+    createInputs("h2hInputs", 4, "Équipe A", "Équipe B");
+    createInputs("teamAInputs", 4);
+    createInputs("teamBInputs", 4);
+
+    function average(arr){ return (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(2); }
+    function min(arr){ return Math.min(...arr); }
+    function max(arr){ return Math.max(...arr); }
+
+    function analyze() {
+      let teamA = document.getElementById("teamA").value;
+      let teamB = document.getElementById("teamB").value;
+
+      let h2hA = [], h2hB = [];
+      for(let i=1;i<=4;i++){
+        h2hA.push(Number(document.getElementById(`h2hInputsA${i}`).value||0));
+        h2hB.push(Number(document.getElementById(`h2hInputsB${i}`).value||0));
+      }
+
+      let recA = [], recB = [];
+      for(let i=1;i<=4;i++){
+        recA.push(Number(document.getElementById(`teamAInputs${i}`).value||0));
+        recB.push(Number(document.getElementById(`teamBInputs${i}`).value||0));
+      }
+
+      let data = {
+        [teamA]: {
+          avgH2H: average(h2hA), minH2H: min(h2hA), maxH2H: max(h2hA),
+          avgRec: average(recA), minRec: min(recA), maxRec: max(recA)
+        },
+        [teamB]: {
+          avgH2H: average(h2hB), minH2H: min(h2hB), maxH2H: max(h2hB),
+          avgRec: average(recB), minRec: min(recB), maxRec: max(recB)
+        }
+      };
+
+      function forecast(team){
+        let avg = ((parseFloat(data[team].avgH2H) + parseFloat(data[team].avgRec))/2).toFixed(2);
+        let minVal = Math.min(data[team].minH2H, data[team].minRec);
+        let maxVal = Math.max(data[team].maxH2H, data[team].maxRec);
+        return {avg, minVal, maxVal, line:`Over ${(Math.floor(avg))}.5`};
+      }
+
+      let fA = forecast(teamA), fB = forecast(teamB);
+
+      document.getElementById("result").innerHTML = `
+        <h2>Résultats</h2>
+        <table>
+          <tr>
+            <th>Équipe</th><th>Moy H2H</th><th>Min H2H</th><th>Max H2H</th>
+            <th>Moy Récents</th><th>Min Récents</th><th>Max Récents</th>
+            <th>Prévision Moy</th><th>Prévision Min-Max</th><th>Ligne Over</th>
+          </tr>
+          <tr>
+            <td>${teamA}</td>
+            <td>${data[teamA].avgH2H}</td><td>${data[teamA].minH2H}</td><td>${data[teamA].maxH2H}</td>
+            <td>${data[teamA].avgRec}</td><td>${data[teamA].minRec}</td><td>${data[teamA].maxRec}</td>
+            <td>${fA.avg}</td><td>${fA.minVal}-${fA.maxVal}</td><td>${fA.line}</td>
+          </tr>
+          <tr>
+            <td>${teamB}</td>
+            <td>${data[teamB].avgH2H}</td><td>${data[teamB].minH2H}</td><td>${data[teamB].maxH2H}</td>
+            <td>${data[teamB].avgRec}</td><td>${data[teamB].minRec}</td><td>${data[teamB].maxRec}</td>
+            <td>${fB.avg}</td><td>${fB.minVal}-${fB.maxVal}</td><td>${fB.line}</td>
+          </tr>
+        </table>
+      `;
+    }
+  </script>
+ </div>
+</body>
+</html>
