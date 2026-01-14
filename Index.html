@@ -1,188 +1,348 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title><strong>Toxique prediction</strong></title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="google-site-verification" content="WMNy6b8DsQJnPjVui2-nX9DbH25HJVIOm2ZGE_W56Rc" />
-  <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      padding: 20px; 
-      background-color: #8B4513 !important;
-    }
-    h1 { text-align: center; }
-    .input-section { margin-bottom: 20px; }
-    input { margin: 3px; width: 60px; text-align: center; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    table, th, td { border: 1px solid black; }
-    th, td { padding: 8px; text-align: center; }
-    .btn { padding: 10px; background: blue; color: white; border: none; cursor: pointer; margin-top: 10px; }
-    .btn:hover { background: darkblue; }
-  </style>
-
-  <!-- 🔹 Déclaration du manifest intégré -->
-  <link rel="manifest" id="manifest-placeholder">
-  <script>
-    // Création dynamique du manifest.json intégré
-    const manifestData = {
-      "name": "Analyse Corners",
-      "short_name": "Corners",
-      "start_url": ".",
-      "display": "standalone",
-      "background_color": "#ffffff",
-      "theme_color": "#0000ff",
-      "icons": [
-        {
-          "src": "https://cdn-icons-png.flaticon.com/512/138/138281.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        },
-        {
-          "src": "https://cdn-icons-png.flaticon.com/512/138/138281.png",
-          "sizes": "512x512",
-          "type": "image/png"
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site de Prédiction Sportive</title>
+    <style>
+        body {
+            background-image: url("data:image/png;base64,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
+90uLnKr4K5Hb8zjeKiobXWL6Xeof/mD5ZY9wwosTla/Va1T8uPcP54vFm9M/9W4kEz9/Z5UPwC/ubrsN/pPCderdgXuMY+PXGtb+3BUn1CUp+YPmu1tdYvpX5gK16geN9qb9/73szsq39k68NR123ubfY7j604Hu9yfRxP+l/M2pOnrrGp35y7x2+tefX969X32nqNnfvdV5MJ7tyv+
+Lr9S4knTz96HcznUry33/zjZZ+f/n7M7Ku92bdSP3b8W/uTlOdD3I+9+ijux54V/Rr7Ge7HorfFjp/kfiweh38+4gWK50S8eP3qHz+v92OPhNqfuBs7XB3X5wx1Hfzm+9cI7TeCufmeOYK5td/8GuM4uxyPK/df/Pn/Ogw/yltfddbHeEW6HusDwxiHbv5TJ3D4hbj+qZo6qr6IrB/
+9aq6dfKyJ8dnP2s+s/kXzqFF+qrbva7vWV/WzY1Oa67b4Xc/2/bQmztV4l+Nx5QzWg/nfhrNmn8PxSqc4Hs84/j8slWaH4zH+KO4OW+vrTIM1fQ8ba/qPWf+GA7at/K7Z4ri797E/+9RxrIn+o3XnP4/y45/6zQn13/Ue8H3Zke7fxvu2nftAPqp841j5jTVVzXouo+Y+v3pWPwGWtaFj
+P9aonyt++3Op6zQeVClNcMrGGvXzSNtR6/VNV2tW9b6HjTX9x8w/ROdg+8yvcvGjxrscj2dc/akoG/djM16Ndzkezziv1e/HouZdv1HDHNuU5rqtPodYXYfaT2vUz722ekRULn7Wfvs21qz2MPzh3nU/WgjbfvkHNey3+rnqd0B/w6/b+T6w3z/u3XdiH8zM7F/81d/AFvRjEa/YtbeOh
+49nPB/iXb36SjO+Lf98qL2tH3l481fsPj5xb1/9VaWv/srtZ38V/xlrffM64x3Tz+3Lmp6z3vqu3s9xjb1Cbz/4xyLrNfaM1dZ39f7iH+X9HWp9xmpjP3j1jxniOnjGer94b198r33WV/EL7F8/wzVW/BMUcT/WP8r7fOj3Y/X805Pfj715b7/AY4Rn7S3/Scqnn+h+7JNfY8/a27gf
+G94xfeLe1k+nFCtW7Lejf7HnM9b6Wuo1Vu/HzD4OXzb3fIj7scPM/nQcFp/9ecZq65991S9s+uiPw6Ovj6z3n/7r/+MwjPnf/tXf1M/y1O/vrRZ8t9XP4xuvmqbZ2M9PIgZo2pfYLPzaIivFPr98sE/xd7wNwu+0pnv84Jw0xZ9E/8WKfSxmv7+82MtJD9b54mSiaRB+J7HLQX9jGnfo
+aZ4cG21CM/Xb6IGZnot/TOuLvdkX/yhJ3cixJuF3WhPmfRxKqX+T8TXudHwjf1aMD5pf/EHzDRhuW7vvNpmsk/hb42/+Ld2fjhf7sOHXw fniBP1ZM/HbmMs3M39iWuw3722eJ/v5yWouzO3MpUH4lXpn88U/Lv/p5cU+lQdeY7fOZeEXe+1LKfanlw/2UqzeJ93Rg3VN+374tf3lqB+HrH//Vq+xz8dhVnya03znPagY/cpZDzbm8qXUB0sfj8N+txdaB3DOsZf5bvGLSWm/Ag9ESyn2+eXFPpbjfB1s9GDtd9tc3vyj/V/9gd3vx8
+vGfe7JXBqE32lNc79y9DcGzJ+Y6v1LxP4BwPux+uL18344tn1XQil2WH0882FWrOotc7hOVrcJc+i3yPetFPvDr7H2IuBWbJuur3O/k/XFnI/rk/66137wdVAfh7ufma5p1YN3nMtX32tffK/9sOk3z+cnKz8zPRfTPQjTN3+M8Bp/Yxp7bWjIb9aDUmy5fv6TP9cnpr/wC7/wC7/wC7/
+wC7/wC7/wC7/wC7/wC7/wC7/wC7/wC7/wC7/wC7/wC/9w8f8DCWEZhQoJ5JEAAAAASUVORK5CYII=");
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: white;
         }
-      ]
-    };
-
-    const blob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
-    const manifestURL = URL.createObjectURL(blob);
-    document.getElementById("manifest-placeholder").setAttribute("href", manifestURL);
-
-    // Service Worker intégré
-    if ("serviceWorker" in navigator) {
-      const swCode = `
-        self.addEventListener("install", event => {
-          event.waitUntil(
-            caches.open("app-cache").then(cache => {
-              return cache.addAll(["."]);
-            })
-          );
-        });
-
-        self.addEventListener("fetch", event => {
-          event.respondWith(
-            caches.match(event.request).then(response => {
-              return response || fetch(event.request);
-            })
-          );
-        });
-      `;
-      const swBlob = new Blob([swCode], { type: "application/javascript" });
-      const swURL = URL.createObjectURL(swBlob);
-      navigator.serviceWorker.register(swURL);
-    }
-  </script>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+        .profile {
+            display: flex;
+            align-items: center;
+        }
+        .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        button {
+            background-color: #d15f72;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #C41E3A;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            max-width: 400px;
+        }
+        .calendar div {
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        .calendar div:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .match-list {
+            list-style: none;
+            padding: 0;
+        }
+        .match-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .bet-buttons button {
+            margin: 0 5px;
+            padding: 5px 10px;
+        }
+        .bet-buttons button.selected {
+            background-color: green;
+        }
+        .prediction {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .odds {
+            margin-top: 20px;
+        }
+        .odds ul {
+            list-style: none;
+            padding: 0;
+        }
+        .odds li {
+            margin-bottom: 10px;
+        }
+        form {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 400px;
+            margin: 50px auto;
+        }
+        input {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
- <div align="center">
-  <h1>Application Analyse Corners</h1>
+    <div class="container">
+        <div class="header">
+            <div id="user-profile" style="display: none;">
+                <div class="profile">
+                    <img src="assets/icons/user-avatar.png" alt="Avatar">
+                    <span id="username"></span>
+                </div>
+            </div>
+            <div id="auth-buttons">
+                <button onclick="showPage('inscription')">INSCRIPTION</button>
+                <button onclick="showPage('connexion')">CONNEXION</button>
+            </div>
+        </div>
 
-  <div class="input-section">
-    <label>Équipe A : <input id="teamA" type="text" placeholder="Équipe A"></label>
-    <label>Équipe B : <input id="teamB" type="text" placeholder="Équipe B"></label>
-  </div>
+        <!-- Page d'accueil -->
+        <div id="home" class="page active">
+            <h1>Bienvenue sur le Site de Prédiction Sportive</h1>
+            <p>Connectez-vous pour accéder aux prédictions.</p>
+        </div>
 
-  <h3>Derniers H2H (4 matchs)</h3>
-  <div id="h2hInputs"></div>
+        <!-- Inscription -->
+        <div id="inscription" class="page">
+            <form onsubmit="register(event)">
+                <h2>Inscription</h2>
+                <input type="text" id="reg-username" placeholder="Nom d'utilisateur" required>
+                <input type="email" id="reg-email" placeholder="Email" required>
+                <input type="password" id="reg-password" placeholder="Mot de passe" required>
+                <button type="submit">S'inscrire</button>
+            </form>
+        </div>
 
-  <h3>Derniers matchs Équipe A (4) tous adversaires confondus</h3>
-  <div id="teamAInputs"></div>
+        <!-- Connexion -->
+        <div id="connexion" class="page">
+            <form onsubmit="login(event)">
+                <h2>Connexion</h2>
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Mot de passe" required>
+                <button type="submit">Se connecter</button>
+            </form>
+        </div>
 
-  <h3>Derniers matchs Équipe B (4) tous adversaires confondus</h3>
-  <div id="teamBInputs"></div>
+        <!-- Dashboard utilisateur -->
+        <div id="dashboard" class="page">
+            <h2>Choisissez une date</h2>
+            <div class="calendar" id="calendar"></div>
+            <button onclick="viewMatches()">Voir les matchs du jour</button>
+        </div>
 
-  <button class="btn" onclick="analyze()">Analyser</button>
+        <!-- Liste des matchs -->
+        <div id="match-list" class="page">
+            <button onclick="showPage('dashboard')">Changer de date</button>
+            <h2>Matchs du jour</h2>
+            <ul class="match-list" id="matches"></ul>
+            <button id="view-prediction" onclick="viewPrediction()" disabled>VOIR LA PRÉDICTION</button>
+        </div>
 
-  <div id="result"></div>
+        <!-- Page de prédiction -->
+        <div id="prediction" class="page">
+            <button onclick="showPage('dashboard')">Changer de date</button>
+            <button onclick="showPage('match-list')">Changer de pari</button>
+            <div class="prediction" id="prediction-content"></div>
+        </div>
+    </div>
 
-  <script>
-    // Générer automatiquement les inputs
-    function createInputs(id, count, labelA="", labelB="") {
-      let container = document.getElementById(id);
-      for (let i = 1; i <= count; i++) {
-        if(labelB){
-          container.innerHTML += `<div>Match ${i}: 
-            <input type="number" id="${id}A${i}" placeholder="${labelA}">
-            <input type="number" id="${id}B${i}" placeholder="${labelB}">
-          </div>`;
-        } else {
-          container.innerHTML += `<input type="number" id="${id}${i}" placeholder="Match ${i}">`;
+    <script>
+        let currentUser = null;
+        let selectedDate = null;
+        let selectedBet = null;
+
+        // Mock data
+        const matches = [
+            { time: '15:00', home: 'PSG', away: 'Marseille', bets: ['1X2', 'Buteur', 'Cartons', 'Corners', 'BTTS'] },
+            { time: '17:30', home: 'Lyon', away: 'Monaco', bets: ['1X2', 'Buteur', 'Cartons', 'Corners', 'BTTS'] },
+            // Add more matches
+        ];
+
+        const predictions = {
+            'PSG-Marseille-Buteur': {
+                title: 'PRÉDICTION BUTEUR – PSG vs Marseille',
+                main: 'Kylian Mbappé marque un but – 82% de probabilité',
+                secondary: 'Neymar marque un but – 65% de probabilité',
+                odds: [
+                    { bookmaker: 'Melbet', value: 1.85, link: '#' },
+                    { bookmaker: 'Unibet', value: 1.90, link: '#' },
+                    { bookmaker: 'Winamax', value: 1.88, link: '#' },
+                    { bookmaker: 'Betclic', value: 1.87, link: '#' },
+                ]
+            }
+            // Add more predictions
+        };
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
         }
-      }
-    }
 
-    createInputs("h2hInputs", 4, "Équipe A", "Équipe B");
-    createInputs("teamAInputs", 4);
-    createInputs("teamBInputs", 4);
-
-    function average(arr){ return (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(2); }
-    function min(arr){ return Math.min(...arr); }
-    function max(arr){ return Math.max(...arr); }
-
-    function analyze() {
-      let teamA = document.getElementById("teamA").value;
-      let teamB = document.getElementById("teamB").value;
-
-      let h2hA = [], h2hB = [];
-      for(let i=1;i<=4;i++){
-        h2hA.push(Number(document.getElementById(`h2hInputsA${i}`).value||0));
-        h2hB.push(Number(document.getElementById(`h2hInputsB${i}`).value||0));
-      }
-
-      let recA = [], recB = [];
-      for(let i=1;i<=4;i++){
-        recA.push(Number(document.getElementById(`teamAInputs${i}`).value||0));
-        recB.push(Number(document.getElementById(`teamBInputs${i}`).value||0));
-      }
-
-      let data = {
-        [teamA]: {
-          avgH2H: average(h2hA), minH2H: min(h2hA), maxH2H: max(h2hA),
-          avgRec: average(recA), minRec: min(recA), maxRec: max(recA)
-        },
-        [teamB]: {
-          avgH2H: average(h2hB), minH2H: min(h2hB), maxH2H: max(h2hB),
-          avgRec: average(recB), minRec: min(recB), maxRec: max(recB)
+        function register(event) {
+            event.preventDefault();
+            const username = document.getElementById('reg-username').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            // Mock registration
+            currentUser = { username, email };
+            document.getElementById('username').textContent = username;
+            document.getElementById('user-profile').style.display = 'block';
+            document.getElementById('auth-buttons').style.display = 'none';
+            showPage('dashboard');
         }
-      };
 
-      function forecast(team){
-        let avg = ((parseFloat(data[team].avgH2H) + parseFloat(data[team].avgRec))/2).toFixed(2);
-        let minVal = Math.min(data[team].minH2H, data[team].minRec);
-        let maxVal = Math.max(data[team].maxH2H, data[team].maxRec);
-        return {avg, minVal, maxVal, line:`Over ${(Math.floor(avg))}.5`};
-      }
+        function login(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            // Mock login
+            currentUser = { username: 'User', email };
+            document.getElementById('username').textContent = currentUser.username;
+            document.getElementById('user-profile').style.display = 'block';
+            document.getElementById('auth-buttons').style.display = 'none';
+            showPage('dashboard');
+        }
 
-      let fA = forecast(teamA), fB = forecast(teamB);
+        function generateCalendar() {
+            const calendar = document.getElementById('calendar');
+            const today = new Date();
+            for (let i = 0; i < 30; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                const div = document.createElement('div');
+                div.textContent = date.getDate();
+                div.onclick = () => selectDate(date);
+                calendar.appendChild(div);
+            }
+        }
 
-      document.getElementById("result").innerHTML = `
-        <h2>Résultats</h2>
-        <table>
-          <tr>
-            <th>Équipe</th><th>Moy H2H</th><th>Min H2H</th><th>Max H2H</th>
-            <th>Moy Récents</th><th>Min Récents</th><th>Max Récents</th>
-            <th>Prévision Moy</th><th>Prévision Min-Max</th><th>Ligne Over</th>
-          </tr>
-          <tr>
-            <td>${teamA}</td>
-            <td>${data[teamA].avgH2H}</td><td>${data[teamA].minH2H}</td><td>${data[teamA].maxH2H}</td>
-            <td>${data[teamA].avgRec}</td><td>${data[teamA].minRec}</td><td>${data[teamA].maxRec}</td>
-            <td>${fA.avg}</td><td>${fA.minVal}-${fA.maxVal}</td><td>${fA.line}</td>
-          </tr>
-          <tr>
-            <td>${teamB}</td>
-            <td>${data[teamB].avgH2H}</td><td>${data[teamB].minH2H}</td><td>${data[teamB].maxH2H}</td>
-            <td>${data[teamB].avgRec}</td><td>${data[teamB].minRec}</td><td>${data[teamB].maxRec}</td>
-            <td>${fB.avg}</td><td>${fB.minVal}-${fB.maxVal}</td><td>${fB.line}</td>
-          </tr>
-        </table>
-      `;
-    }
-  </script>
- </div>
+        function selectDate(date) {
+            selectedDate = date;
+            document.querySelectorAll('#calendar div').forEach(div => div.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        function viewMatches() {
+            if (!selectedDate) return;
+            showPage('match-list');
+            const matchesEl = document.getElementById('matches');
+            matchesEl.innerHTML = '';
+            matches.forEach(match => {
+                const li = document.createElement('li');
+                li.className = 'match-item';
+                li.innerHTML = `
+                    <span>${match.time} ${match.home} - ${match.away}</span>
+                    <div class="bet-buttons">
+                        ${match.bets.map(bet => `<button onclick="selectBet('${match.home}-${match.away}', '${bet}')">${bet}</button>`).join('')}
+                    </div>
+                `;
+                matchesEl.appendChild(li);
+            });
+        }
+
+        function selectBet(match, bet) {
+            selectedBet = `${match}-${bet}`;
+            document.querySelectorAll('.bet-buttons button').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+            document.getElementById('view-prediction').disabled = false;
+        }
+
+        function viewPrediction() {
+            if (!selectedBet) return;
+            showPage('prediction');
+            const pred = predictions[selectedBet] || {
+                title: `PRÉDICTION ${selectedBet.split('-')[2]} – ${selectedBet.split('-')[0]} vs ${selectedBet.split('-')[1]}`,
+                main: 'Prédiction: Équipe domicile gagne – 70% de probabilité',
+                secondary: '',
+                odds: [
+                    { bookmaker: 'Melbet', value: 2.10, link: '#' },
+                    { bookmaker: 'Unibet', value: 2.15, link: '#' },
+                    { bookmaker: 'Betclic', value: 2.12, link: '#' },
+                ]
+            };
+            const content = document.getElementById('prediction-content');
+            content.innerHTML = `
+                <h2>${pred.title}</h2>
+                <p>${pred.main}</p>
+                ${pred.secondary ? `<p>${pred.secondary}</p>` : ''}
+                <div class="odds">
+                    <h3>Meilleures cotes</h3>
+                    <ul>
+                        ${pred.odds.map(odd => `<li>${odd.bookmaker}: ${odd.value} <a href="${odd.link}">Parier maintenant</a></li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        // Initialize
+        generateCalendar();
+    </script>
 </body>
 </html>
-
-
