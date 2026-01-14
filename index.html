@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site de Prédiction Sportive</title>
+    <style>
+        body {
+            background-image: url("assets/logo.png");
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+        .profile {
+            display: flex;
+            align-items: center;
+        }
+        .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        button {
+            background-color: #d15f72;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #C41E3A;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            max-width: 400px;
+        }
+        .calendar div {
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        .calendar div:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .match-list {
+            list-style: none;
+            padding: 0;
+        }
+        .match-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .bet-buttons button {
+            margin: 0 5px;
+            padding: 5px 10px;
+        }
+        .bet-buttons button.selected {
+            background-color: green;
+        }
+        .prediction {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .odds {
+            margin-top: 20px;
+        }
+        .odds ul {
+            list-style: none;
+            padding: 0;
+        }
+        .odds li {
+            margin-bottom: 10px;
+        }
+        form {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 400px;
+            margin: 50px auto;
+        }
+        input {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div id="user-profile" style="display: none;">
+                <div class="profile">
+                    <img src="assets/icons/user-avatar.png" alt="Avatar">
+                    <span id="username"></span>
+                </div>
+            </div>
+            <div id="auth-buttons">
+                <button onclick="showPage('inscription')">INSCRIPTION</button>
+                <button onclick="showPage('connexion')">CONNEXION</button>
+            </div>
+        </div>
+
+        <!-- Page d'accueil -->
+        <div id="home" class="page active">
+            <h1>Bienvenue sur le Site de Prédiction Sportive</h1>
+            <p>Connectez-vous pour accéder aux prédictions.</p>
+        </div>
+
+        <!-- Inscription -->
+        <div id="inscription" class="page">
+            <form onsubmit="register(event)">
+                <h2>Inscription</h2>
+                <input type="text" id="reg-username" placeholder="Nom d'utilisateur" required>
+                <input type="email" id="reg-email" placeholder="Email" required>
+                <input type="password" id="reg-password" placeholder="Mot de passe" required>
+                <button type="submit">S'inscrire</button>
+            </form>
+        </div>
+
+        <!-- Connexion -->
+        <div id="connexion" class="page">
+            <form onsubmit="login(event)">
+                <h2>Connexion</h2>
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Mot de passe" required>
+                <button type="submit">Se connecter</button>
+            </form>
+        </div>
+
+        <!-- Dashboard utilisateur -->
+        <div id="dashboard" class="page">
+            <h2>Choisissez une date</h2>
+            <div class="calendar" id="calendar"></div>
+            <button onclick="viewMatches()">Voir les matchs du jour</button>
+        </div>
+
+        <!-- Liste des matchs -->
+        <div id="match-list" class="page">
+            <button onclick="showPage('dashboard')">Changer de date</button>
+            <h2>Matchs du jour</h2>
+            <ul class="match-list" id="matches"></ul>
+            <button id="view-prediction" onclick="viewPrediction()" disabled>VOIR LA PRÉDICTION</button>
+        </div>
+
+        <!-- Page de prédiction -->
+        <div id="prediction" class="page">
+            <button onclick="showPage('dashboard')">Changer de date</button>
+            <button onclick="showPage('match-list')">Changer de pari</button>
+            <div class="prediction" id="prediction-content"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let selectedDate = null;
+        let selectedBet = null;
+
+        // Mock data
+        const matches = [
+            { time: '15:00', home: 'PSG', away: 'Marseille', bets: ['1X2', 'Buteur', 'Cartons', 'Corners', 'BTTS'] },
+            { time: '17:30', home: 'Lyon', away: 'Monaco', bets: ['1X2', 'Buteur', 'Cartons', 'Corners', 'BTTS'] },
+            // Add more matches
+        ];
+
+        const predictions = {
+            'PSG-Marseille-Buteur': {
+                title: 'PRÉDICTION BUTEUR – PSG vs Marseille',
+                main: 'Kylian Mbappé marque un but – 82% de probabilité',
+                secondary: 'Neymar marque un but – 65% de probabilité',
+                odds: [
+                    { bookmaker: 'Melbet', value: 1.85, link: '#' },
+                    { bookmaker: 'Unibet', value: 1.90, link: '#' },
+                    { bookmaker: 'Winamax', value: 1.88, link: '#' },
+                    { bookmaker: 'Betclic', value: 1.87, link: '#' },
+                ]
+            }
+            // Add more predictions
+        };
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function register(event) {
+            event.preventDefault();
+            const username = document.getElementById('reg-username').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            // Mock registration
+            currentUser = { username, email };
+            document.getElementById('username').textContent = username;
+            document.getElementById('user-profile').style.display = 'block';
+            document.getElementById('auth-buttons').style.display = 'none';
+            showPage('dashboard');
+        }
+
+        function login(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            // Mock login
+            currentUser = { username: 'User', email };
+            document.getElementById('username').textContent = currentUser.username;
+            document.getElementById('user-profile').style.display = 'block';
+            document.getElementById('auth-buttons').style.display = 'none';
+            showPage('dashboard');
+        }
+
+        function generateCalendar() {
+            const calendar = document.getElementById('calendar');
+            const today = new Date();
+            for (let i = 0; i < 30; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                const div = document.createElement('div');
+                div.textContent = date.getDate();
+                div.onclick = () => selectDate(date);
+                calendar.appendChild(div);
+            }
+        }
+
+        function selectDate(date) {
+            selectedDate = date;
+            document.querySelectorAll('#calendar div').forEach(div => div.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        function viewMatches() {
+            if (!selectedDate) return;
+            showPage('match-list');
+            const matchesEl = document.getElementById('matches');
+            matchesEl.innerHTML = '';
+            matches.forEach(match => {
+                const li = document.createElement('li');
+                li.className = 'match-item';
+                li.innerHTML = `
+                    <span>${match.time} ${match.home} - ${match.away}</span>
+                    <div class="bet-buttons">
+                        ${match.bets.map(bet => `<button onclick="selectBet('${match.home}-${match.away}', '${bet}')">${bet}</button>`).join('')}
+                    </div>
+                `;
+                matchesEl.appendChild(li);
+            });
+        }
+
+        function selectBet(match, bet) {
+            selectedBet = `${match}-${bet}`;
+            document.querySelectorAll('.bet-buttons button').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+            document.getElementById('view-prediction').disabled = false;
+        }
+
+        function viewPrediction() {
+            if (!selectedBet) return;
+            showPage('prediction');
+            const pred = predictions[selectedBet] || {
+                title: `PRÉDICTION ${selectedBet.split('-')[2]} – ${selectedBet.split('-')[0]} vs ${selectedBet.split('-')[1]}`,
+                main: 'Prédiction: Équipe domicile gagne – 70% de probabilité',
+                secondary: '',
+                odds: [
+                    { bookmaker: 'Melbet', value: 2.10, link: '#' },
+                    { bookmaker: 'Unibet', value: 2.15, link: '#' },
+                    { bookmaker: 'Betclic', value: 2.12, link: '#' },
+                ]
+            };
+            const content = document.getElementById('prediction-content');
+            content.innerHTML = `
+                <h2>${pred.title}</h2>
+                <p>${pred.main}</p>
+                ${pred.secondary ? `<p>${pred.secondary}</p>` : ''}
+                <div class="odds">
+                    <h3>Meilleures cotes</h3>
+                    <ul>
+                        ${pred.odds.map(odd => `<li>${odd.bookmaker}: ${odd.value} <a href="${odd.link}">Parier maintenant</a></li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        // Initialize
+        generateCalendar();
+    </script>
+</body>
+</html>
